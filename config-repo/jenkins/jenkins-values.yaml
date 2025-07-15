@@ -1,0 +1,28 @@
+controller:
+  image:
+    registry: docker.io
+    repository: jenkins/jenkins
+    tag: lts
+    pullPolicy: Always
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+
+  persistence:
+    enabled: true
+    storageClass: local-path
+    size: 5Gi
+
+  serviceType: NodePort
+  servicePort: 8080
+  targetPort: 8080
+  nodePort: 30010
+
+  admin:
+    username: admin
+    password: admin
