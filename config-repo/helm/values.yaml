@@ -1,10 +1,10 @@
 vote:
   image: quang47/voting-app_vote
-  tag: 130aa69a
+  tag: 313f4e5c
   replicaCount: 1
 result:
   image: quang47/voting-app_result
-  tag: 130aa69a
+  tag: 313f4e5c
   replicaCount: 1
 worker:
   image: dockersamples/examplevotingapp_worker
