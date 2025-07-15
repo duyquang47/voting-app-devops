@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 
+    repoURL: https://github.com/duyquang47/voting-app-devops.git
     targetRevision: main
-    path: helm
+    path: config-repo/helm
   destination:
     server: https://kubernetes.default.svc
     namespace: default

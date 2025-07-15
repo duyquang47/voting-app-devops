@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  revisionHistoryLimit: 2
+  replicas: {{ .Values.vote.replicaCount }}
+  selector:
+    matchLabels:
+      app: vote
+  template:
+    metadata:
+      labels:
+        app: vote
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+        prometheus.io/path: "/metrics"
+        fluentd.io/parser: "json"
+        fluentd.io/tag: "vote-app"   
+    spec:
+      containers:
+        - name: vote
+          image: "{{ .Values.vote.image }}:{{ .Values.vote.tag }}"
+          ports:
+            - containerPort: 80
+          env:
+            - name: REDIS_HOST
+              value: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: vote
+  name: vote
+spec:
+  type: NodePort
+  ports:
+  - name: "vote-service"
+    port: 8080
+    targetPort: 80
+    nodePort: 31000
+  selector:
+    app: vote
