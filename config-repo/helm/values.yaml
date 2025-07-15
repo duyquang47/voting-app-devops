@@ -1,10 +1,10 @@
 vote:
-  image: dockersamples/examplevotingapp_vote
-  tag: latest
+  image: quang47/voting-app_vote
+  tag: aef35965
   replicaCount: 1
 result:
-  image: dockersamples/examplevotingapp_result
-  tag: latest
+  image: quang47/voting-app_result
+  tag: aef35965
   replicaCount: 1
 worker:
   image: dockersamples/examplevotingapp_worker
