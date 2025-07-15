@@ -101,7 +101,7 @@ pipeline {
               if ! git diff --quiet helm/values.yaml; then
                   git add helm/values.yaml
                   git commit -m "CI: Update image tags to ${env.GIT_COMMIT_SHORT}"
-                  git push origin HEAD:main
+                  git push https://${GIT_USER}:${GIT_PASS}@github.com/duyquang47/voting-app-devops.git
                 else
                     echo "No changes detected. Skipping commit."
                 fi
