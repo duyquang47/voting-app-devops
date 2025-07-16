@@ -24,7 +24,7 @@ app.use(httpLogger);
 const register = promClient.register;
 
 const voteCounts = new promClient.Gauge({
-  name: 'result_vote_counts',
+  name: 'result_counts',
   help: 'Current vote counts by option',
   labelNames: ['vote_option']
 });

@@ -43,7 +43,7 @@ app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.INFO)
 
 # --- Prometheus metric ---
-VOTE_COUNT = Gauge('vote_votes', 'Current vote count', ['vote_option'])
+VOTE_COUNT = Gauge('vote_counts', 'Current vote count', ['vote_option'])
 
 # --- Kết nối Redis ---
 def get_redis():
