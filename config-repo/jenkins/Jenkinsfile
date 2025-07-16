@@ -30,7 +30,7 @@ pipeline {
               currentBuild.displayName = "#${BUILD_NUMBER} (bot-skip)"
               currentBuild.description = "Skipped build triggered by bot commit"
               currentBuild.result = 'ABORTED'
-              return
+              throw new hudson.AbortException("Pipeline aborted due to bot commit to prevent infinite loop.") 
             }
           }
         }
