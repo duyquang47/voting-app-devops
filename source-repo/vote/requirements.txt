@@ -1,3 +1,5 @@
 Flask
 Redis
 gunicorn
+prometheus_client
+python-json-logger

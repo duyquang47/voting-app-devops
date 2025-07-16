@@ -5,23 +5,54 @@ import socket
 import random
 import json
 import logging
+from prometheus_client import Gauge, generate_latest, CONTENT_TYPE_LATEST
+from pythonjsonlogger import jsonlogger
 
+# --- Cấu hình ---
 option_a = os.getenv('OPTION_A', "Dogs")
 option_b = os.getenv('OPTION_B', "Cats")
 hostname = socket.gethostname()
 
 app = Flask(__name__)
 
+# --- Logger JSON ---
+logger = logging.getLogger("vote-app")
+logHandler = logging.StreamHandler()
+formatter = jsonlogger.JsonFormatter('%(asctime)s %(name)s %(levelname)s %(message)s')
+logHandler.setFormatter(formatter)
+logger.addHandler(logHandler)
+app.logger.addHandler(logHandler)
+app.logger.setLevel(logging.INFO)
+
+# --- Log sau mỗi request ---
+@app.after_request
+def log_request_info(response):
+    logger.info(
+        "Request handled",
+        extra={
+            'request_path': request.path,
+            'http_method': request.method,
+            'response_code': response.status_code
+        }
+    )
+    return response
+
+# --- Tích hợp gunicorn logging ---
 gunicorn_error_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers.extend(gunicorn_error_logger.handlers)
 app.logger.setLevel(logging.INFO)
 
+# --- Prometheus metric ---
+VOTE_COUNT = Gauge('vote_votes', 'Current vote count', ['vote_option'])
+
+# --- Kết nối Redis ---
 def get_redis():
     if not hasattr(g, 'redis'):
         g.redis = Redis(host="redis", db=0, socket_timeout=5)
     return g.redis
 
-@app.route("/", methods=['POST','GET'])
+# --- Route chính ---
+@app.route("/", methods=['POST', 'GET'])
 def hello():
     voter_id = request.cookies.get('voter_id')
     if not voter_id:
@@ -46,28 +77,27 @@ def hello():
     resp.set_cookie('voter_id', voter_id)
     return resp
 
-@app.route("/metrics", methods=['GET'])
+# --- Prometheus metrics endpoint ---
+@app.route("/metrics")
 def metrics():
     redis = get_redis()
-    votes = redis.lrange('votes', 0, -1)
-    count_a = 0
-    count_b = 0
-    for v in votes:
+    vote_counts = {option_a: 0, option_b: 0}
+    
+    for item in redis.lrange('votes', 0, -1):
         try:
-            data = json.loads(v)
-            if data.get('vote') == 'a':
-                count_a += 1
-            elif data.get('vote') == 'b':
-                count_b += 1
-        except Exception:
-            continue
-    metrics_text = f"vote_count_a {count_a}\nvote_count_b {count_b}\n"
-    return app.response_class(
-        response=metrics_text,
-        status=200,
-        mimetype='text/plain; version=0.0.4'
-    )
+            data = json.loads(item)
+            vote = data.get('vote')
+            if vote in vote_counts:
+                vote_counts[vote] += 1
+        except Exception as e:
+            app.logger.warning("Failed to parse vote: %s", str(e))
 
+    # Cập nhật lại Gauge metric
+    for vote_option, count in vote_counts.items():
+        VOTE_COUNT.labels(vote_option=vote_option).set(count)
 
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+
+# --- Khởi chạy ---
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
