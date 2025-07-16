@@ -71,6 +71,29 @@ app.get('/', function (req, res) {
   res.sendFile(path.resolve(__dirname + '/views/index.html'));
 });
 
+app.get('/metrics', function (req, res) {
+  pool.connect(function(err, client, done) {
+    if (err) {
+      res.status(500).type('text/plain').send('# DB connection error');
+      return;
+    }
+    client.query('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote', [], function(err, result) {
+      done();
+      if (err) {
+        res.status(500).type('text/plain').send('# Query error');
+        return;
+      }
+      var count_a = 0, count_b = 0;
+      result.rows.forEach(function(row) {
+        if(row.vote === 'a') count_a = parseInt(row.count);
+        if(row.vote === 'b') count_b = parseInt(row.count);
+      });
+      const metrics = `vote_count_a ${count_a}\nvote_count_b ${count_b}\n`;
+      res.type('text/plain; version=0.0.4').send(metrics);
+    });
+  });
+});
+
 server.listen(port, function () {
   var port = server.address().port;
   console.log('App running on port ' + port);

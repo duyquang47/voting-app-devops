@@ -46,6 +46,28 @@ def hello():
     resp.set_cookie('voter_id', voter_id)
     return resp
 
+@app.route("/metrics", methods=['GET'])
+def metrics():
+    redis = get_redis()
+    votes = redis.lrange('votes', 0, -1)
+    count_a = 0
+    count_b = 0
+    for v in votes:
+        try:
+            data = json.loads(v)
+            if data.get('vote') == 'a':
+                count_a += 1
+            elif data.get('vote') == 'b':
+                count_b += 1
+        except Exception:
+            continue
+    metrics_text = f"vote_count_a {count_a}\nvote_count_b {count_b}\n"
+    return app.response_class(
+        response=metrics_text,
+        status=200,
+        mimetype='text/plain; version=0.0.4'
+    )
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
