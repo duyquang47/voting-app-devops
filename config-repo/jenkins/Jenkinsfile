@@ -12,6 +12,13 @@ pipeline {
   }
 
   stages {
+    stage('Checkout Source Code') {
+      steps {
+        echo 'Checking out source code...'
+        checkout scm
+      }
+    }
+
     stage('Check Last Commit Author') {
       steps {
         container('git') {
@@ -27,13 +34,6 @@ pipeline {
             }
           }
         }
-      }
-    }
-    
-    stage('Checkout Source Code') {
-      steps {
-        echo 'Checking out source code...'
-        checkout scm
       }
     }
 
