@@ -20,15 +20,16 @@ pipeline {
             echo "Last commit author: ${authorEmail}"
             if (authorEmail == "jenkins-ci-bot@example.com") {
               echo "Skip build: Last commit is from Jenkins bot"
+              currentBuild.displayName = "#${BUILD_NUMBER} (bot-skip)"
+              currentBuild.description = "Skipped build triggered by bot commit"
               currentBuild.result = 'SUCCESS'
-              // Exit early
-              error("Terminating pipeline to prevent infinite loop")
+              return 
             }
           }
         }
       }
     }
-    
+
     stage('Checkout Source Code') {
       steps {
         echo 'Checking out source code...'
