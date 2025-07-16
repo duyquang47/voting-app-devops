@@ -12,6 +12,23 @@ pipeline {
   }
 
   stages {
+    stage('Check Last Commit Author') {
+      steps {
+        container('git') {
+          script {
+            def authorEmail = sh(script: "git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
+            echo "Last commit author: ${authorEmail}"
+            if (authorEmail == "jenkins-ci-bot@example.com") {
+              echo "Skip build: Last commit is from Jenkins bot"
+              currentBuild.result = 'SUCCESS'
+              // Exit early
+              error("Terminating pipeline to prevent infinite loop")
+            }
+          }
+        }
+      }
+    }
+    
     stage('Checkout Source Code') {
       steps {
         echo 'Checking out source code...'
