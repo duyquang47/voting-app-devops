@@ -22,14 +22,14 @@ pipeline {
               echo "Skip build: Last commit is from Jenkins bot"
               currentBuild.displayName = "#${BUILD_NUMBER} (bot-skip)"
               currentBuild.description = "Skipped build triggered by bot commit"
-              currentBuild.result = 'SUCCESS'
-              return 
+              currentBuild.result = 'ABORTED'
+              return
             }
           }
         }
       }
     }
-
+    
     stage('Checkout Source Code') {
       steps {
         echo 'Checking out source code...'
