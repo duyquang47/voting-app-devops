@@ -1,0 +1,20 @@
+elasticsearchRef:
+  name: elasticsearch-cluster 
+
+elasticsearchHosts: "https://elasticsearch-cluster-master:9200"
+elasticsearchCertificateSecret: elasticsearch-cluster-master-certs 
+elasticsearchCredentialSecret: elasticsearch-cluster-master-credentials
+elasticsearchCertificateAuthoritiesFile: ca.crt
+
+service:
+  type: NodePort
+  port: 5601
+  nodePort: 30090
+
+resources:
+  requests:
+    memory: "500Mi"
+    cpu: "200m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
