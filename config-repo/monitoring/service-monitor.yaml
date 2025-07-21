@@ -1,0 +1,37 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vote-service-monitor
+  namespace: default 
+  labels:
+    release: kube-prometheus-stack 
+spec:
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app: vote
+  endpoints:
+    - port: vote-service
+      path: /metrics
+      interval: 15s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: result-service-monitor
+  namespace: default 
+  labels:
+    release: kube-prometheus-stack 
+spec:
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      app: result
+  endpoints:
+    - port: result-service
+      path: /metrics
+      interval: 15s
