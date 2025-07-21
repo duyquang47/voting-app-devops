@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# create 3000 votes (2000 for option a, 1000 for option b)
-ab -n 1000 -c 50 -p posta -T "application/x-www-form-urlencoded" http://vote/
-ab -n 1000 -c 50 -p postb -T "application/x-www-form-urlencoded" http://vote/
-ab -n 1000 -c 50 -p posta -T "application/x-www-form-urlencoded" http://vote/
+VOTES_FOR_A=${VOTES_FOR_A:-200}
+VOTES_FOR_B=${VOTES_FOR_B:-100}
+
+
+ab -n $((VOTES_FOR_A / 2)) -c 50 -p posta -T "application/x-www-form-urlencoded" http://vote:8080/
+ab -n $VOTES_FOR_B -c 50 -p postb -T "application/x-www-form-urlencoded" http://vote:8080/
+ab -n $((VOTES_FOR_A / 2)) -c 50 -p posta -T "application/x-www-form-urlencoded" http://vote:8080/

@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vote-generator
+spec:
+  template:
+    spec:
+      containers:
+      - name: vote-generator
+        image: quang47/voting-app_data
+        env:
+        - name: VOTES_FOR_A
+          value: "1000"
+        - name: VOTES_FOR_B
+          value: "500"
+      restartPolicy: Never
+  backoffLimit: 1
